@@ -1,0 +1,129 @@
+#!/bin/csh
+
+#>>>>>>>>>>>>>>>
+# Includes options for: 1) viewing bias field correction, 2) viewing BET/optiBET performance, 3) viewing output of inhomogeneity correction
+# 4) viewing outliers, 5) viewing outliers above threshold, 6) viewing outliers at midpoint
+# other visual inspection stages to be added...
+#>>>>>>>>>>>>>>>
+
+#scanner = trio / prisma / ge
+set scanner = trio
+#task = FearAcq, FearExt, MID1, MID2
+set task = FearAcq
+#QA stage = BET, FEAT, OL_PLOT, OL_LIST, OL_MID, ALIGN
+set QA = FEAT
+
+#-------------------------------------------------------------------------------------#
+#set scan path
+if (${scanner} == "trio") then
+set study_dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA_TRIO
+else if (${scanner} == "prisma") then
+set study_dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC/02_SUBJECTS_UCLA_PRISMA 	
+else if (${scanner} == "ge") then
+set study_dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC/03_SUBJECTS_UCSD
+else
+echo "error setting scanner"
+endif
+echo "\nscanner: ${scanner}"
+
+foreach subj (9284 ) 
+#9292 9293 9294 9295 9296 9298 9300 9301 9302 9303 
+#9304 9305 9306 9307 9308 9309 9310 9311 9312 9314 
+#9315 9316 9317 9320
+echo "\nsubject: ${subj}"
+#set task
+if (${task} == "FearAcq") then
+set task_dir = Fear_cond/Fear_acq
+set const = ${study_dir}/scripts/08_behav/const_FAcq.txt
+else if (${task} == "FearExt") then
+set task_dir = Fear_cond/Fear_ext 
+set const = ${study_dir}/scripts/08_behav/const_FExt.txt	
+else if (${task} == "MID1") then
+set task_dir = MID/MID1
+else if (${task} == "MID2") then
+set task_dir = MID/MID2
+else
+echo "error setting task files"
+endif
+echo "\ntask: ${task}"
+
+#set files
+set base_img = ${study_dir}/${subj}_raw/struct/${subj}struct_restore.nii.gz
+set optibet_img = ${study_dir}/${subj}_raw/struct/${subj}struct_restore_optiBET_brain.nii.gz
+set feat_report = (`ls ${study_dir}/${subj}_raw/${task_dir}/${subj}*.feat/report_unwarp.html`)
+set OL_file = ${study_dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}_OL_DS.txt
+set n_OL = ${study_dir}/${subj}_raw/Fear_cond/Fear_ext/${subj}_OL_overp02.txt
+set mid = ${study_dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}_OL_mid.txt
+set struct_tlrc = ${study_dir}/${subj}_raw/struct/${subj}struct_SS+tlrc.BRIK
+set OL_frac = ${study_dir}/${subj}_raw/Fear_cond/Fear_ext/${subj}_OL_frac.txt
+set struct_tlrc = ${study_dir}/${subj}_raw/struct/${subj}struct_SS+tlrc.BRIK
+set func_tlrc = ${study_dir}/${subj}_raw/Fear_cond/Fear_ext/${subj}FearExtFunc_tlrc_al+tlrc.BRIK 
+
+#set files
+if (${QA} == "BET") then
+fslview ${base_img} ${optibet_img} -l Blue &
+else if (${QA} == "FEAT") then
+firefox --new-tab ${feat_report} 	
+else if (${QA} == "OL_PLOT") then
+#1dplot ${OL_file} &
+1dRplot -xax.lim 0 392 50 -yax.lim 0 1 .1 -one -col.color 1 2 -col.line.type 1 2 -i ${OL_frac} ${const} &
+else if (${QA} == "OL_LIST") then
+echo "subj = ${subj}"
+cat ${n_OL}
+else if (${QA} == "OL_MID") then
+echo "subj = ${subj}"
+cat ${mid}
+else if (${QA} == "ALIGN") then
+afni ${struct_tlrc} ${func_tlrc} &
+else
+echo "error setting task"
+endif
+echo ${task}
+
+#view optiBET
+#fslview ${base_img} ${optibet_img} -l Blue &
+
+###view FEAT report
+#firefox --new-tab ${feat_report} 
+
+###view OL
+#1dplot ${OL_file} &
+
+###view OL>300
+#echo "subj = ${subj}"
+#cat ${n_OL}
+
+###view midpoint
+#echo "subj = ${subj}"
+#cat ${mid}
+
+###view Struct Taliarch
+#afni ${struct_tlrc} &
+
+
+end
+
+
+#---other
+#(`ls ${dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}Fear*.feat/filtered_func_data.nii.gz`)
+#${study_dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}FearAcq.feat/report_unwarp.html
+
+#echo "base_img = ${base_img}"
+#echo "bet_img = ${bet_img}"
+###view bias field
+#fslview ${pre_fast} ${base_img} &
+
+###view BET & optiBET
+#fslview ${base_img} ${bet_C_img} -l Red ${optibet_img} -l Blue &
+
+
+#set pre_fast = ${study_dir}/${subj}_raw/struct/coMPRage${subj}.nii.gz
+#set bet_img = ${study_dir}/${subj}_raw/struct/${subj}struct_restore_BET_brain.nii.gz
+#set bet_C_img = ${study_dir}/${subj}_raw/struct/${subj}struct_restore_BET_C_brain.nii.gz
+#${study_dir}/${subj}_raw/Fear_cond/Fear_ext/${subj}_OL_over300.txt
+#${study_dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}_OL_over300.txt
+
+#${study_dir}/${subj}_raw/MID/Part2/${subj}_OL_mid.txt
+#mid = ${study_dir}/${subj}_raw/Fear_cond/Fear_ext/${subj}_OL_mid.txt
+#${study_dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}_OL_mid.txt
+
