@@ -1,0 +1,124 @@
+#!/bin/csh
+
+# 1) converts to AFNI, 2) performs outlier detection, 3) optional skull stripping, 4) conversion to taliarach coords
+# 5) realigns functional data to static template coords
+# can be used on Fear Acq, Fear Ext, MID 1 or MID 2, with appropriate options at start
+# comment out Structural conversion after first run!
+
+#scanner = trio / prisma / ge
+set scanner = trio
+#task = FearAcq, FearExt, MID1, MID2
+set task = FearAcq
+#QA stage = BET, FEAT, OL_PLOT, OL_LIST, OL_MID, ALIGN
+set QA = ALIGN
+
+#-------------------------------------------------------------------------------------#
+#set scan path
+if (${scanner} == "trio") then
+set study_dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA_TRIO
+else if (${scanner} == "prisma") then
+set study_dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC/02_SUBJECTS_UCLA_PRISMA 	
+else if (${scanner} == "ge") then
+set study_dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC/03_SUBJECTS_UCSD
+else
+echo "error setting scanner"
+endif
+echo "\nscanner: ${scanner}"
+
+
+foreach subj (9223) #(`cat AFNI_list`)
+
+#9201 9202 9203 9204 9205 9206 9207 9208 9209 9211 
+#9212 9213 9216 9217 9218 9219 9223 9224 9225 9226 
+#9227 9228 9230 9231 9232 9233 9235 9236 9237 9238 
+#9239 9241 9242 9243 9244 9245 9246 9247 9248 9251 
+#9252 9254 9255 9257 9258 9259 9260 9261 9263 9264 
+#9265 9266 9267 9268 9270 9271 9273 9274 9277 9279 
+#9282 9283 9284 9285 9286 9287 9288 9289 9290
+
+#set task
+if (${task} == "FearAcq") then
+set task_dir = Fear_cond/Fear_acq
+set const = ${study_dir}/scripts/08_behav/const_FAcq.txt
+else if (${task} == "FearExt") then
+set task_dir = Fear_cond/Fear_ext 
+set const = ${study_dir}/scripts/08_behav/const_FExt.txt	
+else if (${task} == "MID1") then
+set task_dir = MID/MID1
+else if (${task} == "MID2") then
+set task_dir = MID/MID2
+else
+echo "error setting task files"
+endif
+echo "\ntask: ${task}"
+
+
+echo "Converting to AFNI"
+echo "subj = ${subj}"
+set dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA  
+set bet_struct = ${dir}/${subj}_raw/struct/${subj}struct_restore_optiBET_brain.nii.gz
+set out_struct = ${dir}/${subj}_raw/struct/${subj}struct+orig.BRIK
+
+#Fear ACQ
+##set func_file = (`ls ${dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}Fear*.feat/filtered_func_data.nii.gz`)
+
+#set npts = (`ls ${general_dir}/${subj}_raw/raw/MID_UCLA_4*/*.dcm |wc -l`)
+
+##set out_func = ${dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}FearAcqFunc+orig.BRIK
+
+#FEAR EXT
+#set func_file = ${dir}/${subj}_raw/Fear_cond/Fear_ext/${subj}FearExt.feat/filtered_func_data.nii.gz
+#set out_func = ${dir}/${subj}_raw/Fear_cond/Fear_ext/${subj}FearExtFunc+orig.BRIK
+
+#MID 1
+#set func_file = ${dir}/${subj}_raw/MID/Part1/${subj}MID_P1.feat/filtered_func_data.nii.gz
+#set out_func = ${dir}/${subj}_raw/MID/Part1/${subj}MID_P1+orig.BRIK
+
+#MID 2
+#set func_file = ${dir}/${subj}_raw/MID/Part2/${subj}MID_P2.feat/filtered_func_data.nii.gz
+#set out_func = ${dir}/${subj}_raw/MID/Part2/${subj}MID_P2+orig.BRIK
+
+#> convert structural file
+##3dcopy ${bet_struct} ${out_struct}
+
+#> convert functional file
+##3dcopy ${func_file} ${out_func}
+
+#> Outlier detection
+##3dToutcount  -automask ${out_func} > ${dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}_OL.txt
+##awk '$1 > 300' ${dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}_OL.txt | wc -l > ${dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}_OL_over300.txt
+##sed -n "97p" ${dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}_OL.txt > ${dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}_OL_mid.txt
+
+#> Skull stripping 
+##3dSkullStrip -input ${out_struct} -prefix ${dir}/${subj}_raw/struct/${subj}struct_SS+orig.BRIK
+
+#> run conversion to taliarach coordinates (auto_tlrc)
+cd ${dir}/${subj}_raw/struct/
+@auto_tlrc  -no_ss -base TT_N27+tlrc -input ${subj}struct+orig.BRIK
+
+#> run realignment
+cd dir
+set anat = ${dir}/${subj}_raw/struct/${subj}struct_SS+orig.BRIK
+set epi = ${dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}FearAcqFunc+orig.BRIK
+set tlrc_apar = ${dir}/${subj}_raw/struct/${subj}struct_SS+tlrc.BRIK
+
+cd ${dir}/${subj}_raw/Fear_cond/Fear_acq/
+align_epi_anat.py -epi2anat -anat ${anat} -epi ${epi} -epi_base 97 -tlrc_apar ${tlrc_apar}
+
+echo "done ${subj}"
+end
+
+##
+#to add
+
+#3dSkullStrip
+#>> 3dSkullStrip -input <out6.1> -prefix <out8.0>
+#@autotlrc
+#>> @autotlrc  -no_ss -base <in8.0> -input <out7.0>
+#align_epi_anat.py
+#>> align_epi_anat.py –epi2anat –anat <out8.0> -epi <out6.2> -epi_base mid_point –tlrc_apar <out9.0>
+#3dDespike
+#>> 3dDespike –ignore 2 –prefix <out11.0>  <out10.0>
+#3dBlurToFWHM
+#>> 3dBlurToFWHM –input <out11.0> -prefix <out12.0> -FWHM 4 –automask -quiet
+#>> 3dBlurToFWHM –input <out11.0> -prefix <out12.0> -FWHM 6 –automask -quiet
