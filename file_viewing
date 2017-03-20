@@ -11,7 +11,7 @@ set scanner = trio
 #task = FearAcq, FearExt, MID1, MID2
 set task = FearAcq
 #QA stage = BET, FEAT, OL_PLOT, OL_LIST, OL_MID, ALIGN
-set QA = FEAT
+set QA = OL_PLOT
 
 #-------------------------------------------------------------------------------------#
 #set scan path
