@@ -10,8 +10,8 @@
 set scanner = trio
 #task = FearAcq, FearExt, MID1, MID2
 set task = FearAcq
-#QA stage = BET, FEAT, OL_PLOT, OL_LIST, OL_MID, ALIGN
-set QA = ALIGN
+#QA stage = BET, FEAT, OL_PLOT, OL_LIST, OL_MID, ALIGN, OVERLAP_CHECK
+set QA = OVERLAP_CHECK
 
 #-------------------------------------------------------------------------------------#
 #set scan path
@@ -26,7 +26,17 @@ echo "error setting scanner"
 endif
 echo "\nscanner: ${scanner}"
 
-foreach subj (9282) 
+foreach subj (9212 9213 9216 9217 9218 9219 9223 9224 9225 9226 9227 9228 9230 9231 9232 9233 9235 9236 9237 9238 9239 9241 9242 9243 9244 9245 9246 9247 9248 9251 9252 9254 9255 9257 9258 9259 9260 9261 9263 9264 9265 9266 9267 9268 9270 9271 9273 9274 9277 9279 9282 9283 9284 9285 9286 9287 9288 9289 9290) 
+#TRIO
+#9201 9202 9203 9204 9205 9206 9207 9208 9209 9211 
+#9212 9213 9216 9217 9218 9219 9223 9224 9225 9226 
+#9227 9228 9230 9231 9232 9233 9235 9236 9237 9238 
+#9239 9241 9242 9243 9244 9245 9246 9247 9248 9251 
+#9252 9254 9255 9257 9258 9259 9260 9261 9263 9264 
+#9265 9266 9267 9268 9270 9271 9273 9274 9277 9279 
+#9282 9283 9284 9285 9286 9287 9288 9289 9290
+
+#PRISMA
 #9292 9293 9294 9295 9296 9298 9300 9301 9302 9303 
 #9304 9305 9306 9307 9308 9309 9310 9311 9312 9314 
 #9315 9316 9317 9320
@@ -51,13 +61,13 @@ echo "\ntask: ${task}"
 set base_img = ${study_dir}/${subj}_raw/struct/${subj}struct_restore.nii.gz
 set optibet_img = ${study_dir}/${subj}_raw/struct/${subj}struct_restore_optiBET_brain.nii.gz
 set feat_report = (`ls ${study_dir}/${subj}_raw/${task_dir}/${subj}*.feat/report_unwarp.html`)
-set OL_file = ${study_dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}_OL_DS.txt
-set n_OL = ${study_dir}/${subj}_raw/Fear_cond/Fear_ext/${subj}_OL_overp02.txt
-set mid = ${study_dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}_OL_mid.txt
+set OL_file = ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL_DS.txt
+set n_OL = ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL_overp02.txt
+set mid = ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL_mid.txt
 set struct_tlrc = ${study_dir}/${subj}_raw/struct/${subj}struct_SS+tlrc.BRIK
-set OL_frac = ${study_dir}/${subj}_raw/Fear_cond/Fear_ext/${subj}_OL_frac.txt
+set OL_frac = ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL_frac.txt
 set struct_tlrc = ${study_dir}/${subj}_raw/struct/${subj}struct+tlrc.BRIK
-set func_tlrc = ${study_dir}/${subj}_raw/Fear_cond/Fear_ext/${subj}FearExtFunc_tlrc_al+tlrc.BRIK 
+set func_tlrc = ${study_dir}/${subj}_raw/${task_dir}/${subj}${task}Func_tlrc_al+tlrc.BRIK 
 
 #set files
 if (${QA} == "BET") then
@@ -75,10 +85,11 @@ echo "subj = ${subj}"
 cat ${mid}
 else if (${QA} == "ALIGN") then
 afni ${struct_tlrc} ${func_tlrc} &
+else if (${QA} == "OVERLAP_CHECK") then
+3dABoverlap ${study_dir}/${subj}_raw/struct/${subj}struct+orig.BRIK ${study_dir}/${subj}_raw/struct/${subj}struct_SS+orig.BRIK > ${study_dir}/${subj}_raw/struct/${subj}overlap.txt
 else
 echo "error setting task"
 endif
-echo ${task}
 
 #view optiBET
 #fslview ${base_img} ${optibet_img} -l Blue &
