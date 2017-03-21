@@ -26,7 +26,7 @@ endif
 echo "\nscanner: ${scanner}"
 
 
-foreach subj (9211) #(`cat AFNI_list`)
+foreach subj (9204 9205 9206 9207 9208 9209 9211 9212 9213 9216 9217 9218 9219 9223 9224 9225 9226 9227 9228 9230 9231 9232 9233 9235 9236 9237 9238 9239 9241 9242 9243 9244 9245 9246 9247 9248 9251 9252 9254 9255 9257 9258 9259 9260 9261 9263 9264 9265 9266 9267 9268 9270 9271 9273 9274 9277 9279 9282 9283 9284 9285 9286 9287 9288 9289 9290) #(`cat AFNI_list`)
 
 #9201 9202 9203 9204 9205 9206 9207 9208 9209 9211 
 #9212 9213 9216 9217 9218 9219 9223 9224 9225 9226 
@@ -52,7 +52,8 @@ set npts = (`ls ${study_dir}/${subj}_raw/raw/MID_UCLA_5/*.dcm |wc -l`)
 else
 echo "error setting task files"
 endif
-set mp = "${npts}/2"
+@ mp = (${npts} / 2)
+echo "mp: ${mp}"
 echo "\ntask: ${task}"
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -60,7 +61,7 @@ echo "\ntask: ${task}"
 set bet_struct = ${study_dir}/${subj}_raw/struct/${subj}struct_restore_optiBET_brain.nii.gz
 set out_struct = ${study_dir}/${subj}_raw/struct/${subj}struct+orig.BRIK
 set func_file = (`ls ${study_dir}/${subj}_raw/${task_dir}/${subj}*.feat/filtered_func_data.nii.gz`)
-set out_func = ${study_dir}/${subj}_raw/${task_dir}/$r{subj}${task}Func+orig.BRIK
+set out_func = ${study_dir}/${subj}_raw/${task_dir}/${subj}${task}Func+orig.BRIK
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #run functions%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -74,9 +75,9 @@ echo "subj = ${subj}"
 3dcopy ${func_file} ${out_func}
 
 #>>>>>>>>>>>>> Outlier detection
-3dToutcount  -automask ${out_func} > ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL.txt
-awk '$1 > 300' ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL.txt | wc -l > ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL_over300.txt
-sed -n mp ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL.txt > ${dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}_OL_mid.txt
+3dToutcount -fraction -automask ${out_func} > ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL_frac.txt
+awk '$1 > .02' ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL_frac.txt | wc -l > ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL_overp02.txt
+sed -n mp ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL.txt > ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL_mid.txt
 
 #>>>>>>>>>>>>> run conversion to taliarach coordinates (auto_tlrc)
 cd ${study_dir}/${subj}_raw/struct/
@@ -96,7 +97,7 @@ else if (${run} == "SS") then
 3dSkullStrip -input ${out_struct} -prefix ${study_dir}/${subj}_raw/struct/${subj}struct_SS+orig.BRIK
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 echo "done ${subj}"
-end
+endif
 
 #3dDespike
 #>> 3dDespike –ignore 2 –prefix <out11.0>  <out10.0>
