@@ -26,7 +26,7 @@ echo "error setting scanner"
 endif
 echo "\nscanner: ${scanner}"
 
-foreach subj (9223) 
+foreach subj (9282) 
 #9292 9293 9294 9295 9296 9298 9300 9301 9302 9303 
 #9304 9305 9306 9307 9308 9309 9310 9311 9312 9314 
 #9315 9316 9317 9320
