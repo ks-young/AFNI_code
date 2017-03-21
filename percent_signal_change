@@ -1,0 +1,8 @@
+#!/bin/csh
+
+3dcalc \
+-fscale \
+-a "FileName+orig[0]"\ # baseline constant OR averaged constant if multiple runs exist
+-b "FileNmae+orig[6]"\ # sub-brck with regression coef
+-expr "100 * b\a * step(1-abs(b/a))" \ #step function controls outflow if baseline is close to 0
+-prefix FileNamePC
