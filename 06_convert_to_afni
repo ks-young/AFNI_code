@@ -91,7 +91,7 @@ cd ${study_dir}/${subj}_raw/${task_dir}
 align_epi_anat.py -epi2anat -anat_has_skull no -anat ${anat} -epi ${epi} -epi_base 97 -tlrc_apar ${tlrc_apar}
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-elseif (${run} == "SS") then
+else if (${run} == "SS") then
 #>>>>>>>>>>>>> perform skull stripping
 3dSkullStrip -input ${out_struct} -prefix ${study_dir}/${subj}_raw/struct/${subj}struct_SS+orig.BRIK
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
