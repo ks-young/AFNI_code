@@ -9,8 +9,8 @@
 set scanner = trio
 #task = FearAcq, FearExt, MID1, MID2
 set task = FearAcq
-#QA stage = BET, FEAT, OL_PLOT, OL_LIST, OL_MID, ALIGN
-set QA = ALIGN
+#parts to run ALL (conversion, outlier detection, convert to taliarach & realign), SS = skull strip
+set run = ALL
 
 #-------------------------------------------------------------------------------------#
 #set scan path
@@ -26,7 +26,7 @@ endif
 echo "\nscanner: ${scanner}"
 
 
-foreach subj (9223) #(`cat AFNI_list`)
+foreach subj (9201) #(`cat AFNI_list`)
 
 #9201 9202 9203 9204 9205 9206 9207 9208 9209 9211 
 #9212 9213 9216 9217 9218 9219 9223 9224 9225 9226 
@@ -36,87 +36,68 @@ foreach subj (9223) #(`cat AFNI_list`)
 #9265 9266 9267 9268 9270 9271 9273 9274 9277 9279 
 #9282 9283 9284 9285 9286 9287 9288 9289 9290
 
-#set task
+#set task files%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if (${task} == "FearAcq") then
 set task_dir = Fear_cond/Fear_acq
-set const = ${study_dir}/scripts/08_behav/const_FAcq.txt
+set npts = (`ls ${study_dir}/${subj}_raw/raw/Fear_Cond_UCLA_1*/*.dcm |wc -l`)
 else if (${task} == "FearExt") then
 set task_dir = Fear_cond/Fear_ext 
-set const = ${study_dir}/scripts/08_behav/const_FExt.txt	
+set npts = (`ls ${study_dir}/${subj}_raw/raw/Fear_Cond_UCLA_2*/*.dcm |wc -l`)
 else if (${task} == "MID1") then
 set task_dir = MID/MID1
+set npts = (`ls ${study_dir}/${subj}_raw/raw/MID_UCLA_4/*.dcm |wc -l`)
 else if (${task} == "MID2") then
 set task_dir = MID/MID2
+set npts = (`ls ${study_dir}/${subj}_raw/raw/MID_UCLA_5/*.dcm |wc -l`)
 else
 echo "error setting task files"
 endif
+set mp = "${npts}/2"
 echo "\ntask: ${task}"
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#set file names%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+set bet_struct = ${study_dir}/${subj}_raw/struct/${subj}struct_restore_optiBET_brain.nii.gz
+set out_struct = ${study_dir}/${subj}_raw/struct/${subj}struct+orig.BRIK
+set func_file = (`ls ${study_dir}/${subj}_raw/${task_dir}/${subj}*.feat/filtered_func_data.nii.gz`)
+set out_func = ${study_dir}/${subj}_raw/${task_dir}/${subj}${task}Func+orig.BRIK
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#run functions%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if (${run} == "ALL") then
 echo "Converting to AFNI"
 echo "subj = ${subj}"
-set dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA  
-set bet_struct = ${dir}/${subj}_raw/struct/${subj}struct_restore_optiBET_brain.nii.gz
-set out_struct = ${dir}/${subj}_raw/struct/${subj}struct+orig.BRIK
+#>>>>>>>>>>>>> convert structural file
+3dcopy ${bet_struct} ${out_struct}
 
-#Fear ACQ
-##set func_file = (`ls ${dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}Fear*.feat/filtered_func_data.nii.gz`)
+#>>>>>>>>>>>>> convert functional file
+3dcopy ${func_file} ${out_func}
 
-#set npts = (`ls ${general_dir}/${subj}_raw/raw/MID_UCLA_4*/*.dcm |wc -l`)
+#>>>>>>>>>>>>> Outlier detection
+3dToutcount  -automask ${out_func} > ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL.txt
+awk '$1 > 300' ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL.txt | wc -l > ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL_over300.txt
+sed -n mp ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL.txt > ${dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}_OL_mid.txt
 
-##set out_func = ${dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}FearAcqFunc+orig.BRIK
-
-#FEAR EXT
-#set func_file = ${dir}/${subj}_raw/Fear_cond/Fear_ext/${subj}FearExt.feat/filtered_func_data.nii.gz
-#set out_func = ${dir}/${subj}_raw/Fear_cond/Fear_ext/${subj}FearExtFunc+orig.BRIK
-
-#MID 1
-#set func_file = ${dir}/${subj}_raw/MID/Part1/${subj}MID_P1.feat/filtered_func_data.nii.gz
-#set out_func = ${dir}/${subj}_raw/MID/Part1/${subj}MID_P1+orig.BRIK
-
-#MID 2
-#set func_file = ${dir}/${subj}_raw/MID/Part2/${subj}MID_P2.feat/filtered_func_data.nii.gz
-#set out_func = ${dir}/${subj}_raw/MID/Part2/${subj}MID_P2+orig.BRIK
-
-#> convert structural file
-##3dcopy ${bet_struct} ${out_struct}
-
-#> convert functional file
-##3dcopy ${func_file} ${out_func}
-
-#> Outlier detection
-##3dToutcount  -automask ${out_func} > ${dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}_OL.txt
-##awk '$1 > 300' ${dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}_OL.txt | wc -l > ${dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}_OL_over300.txt
-##sed -n "97p" ${dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}_OL.txt > ${dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}_OL_mid.txt
-
-#> Skull stripping 
-##3dSkullStrip -input ${out_struct} -prefix ${dir}/${subj}_raw/struct/${subj}struct_SS+orig.BRIK
-
-#> run conversion to taliarach coordinates (auto_tlrc)
-cd ${dir}/${subj}_raw/struct/
+#>>>>>>>>>>>>> run conversion to taliarach coordinates (auto_tlrc)
+cd ${study_dir}/${subj}_raw/struct/
 @auto_tlrc  -no_ss -base TT_N27+tlrc -input ${subj}struct+orig.BRIK
 
-#> run realignment
-cd dir
-set anat = ${dir}/${subj}_raw/struct/${subj}struct+orig.BRIK
-set epi = ${dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}FearAcqFunc+orig.BRIK
-set tlrc_apar = ${dir}/${subj}_raw/struct/${subj}struct+tlrc.BRIK
-
-cd ${dir}/${subj}_raw/Fear_cond/Fear_acq/
+#>>>>>>>>>>>>> run realignment
+cd study_dir
+set anat = ${study_dir}/${subj}_raw/struct/${subj}struct+orig.BRIK
+set epi = ${study_dir}/${subj}_raw/${task_dir}/${subj}${task}Func+orig.BRIK
+set tlrc_apar = ${study_dir}/${subj}_raw/struct/${subj}struct+tlrc.BRIK
+cd ${study_dir}/${subj}_raw/${task_dir}
 align_epi_anat.py -epi2anat -anat_has_skull no -anat ${anat} -epi ${epi} -epi_base 97 -tlrc_apar ${tlrc_apar}
-
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+elseif (${run} == "SS") then
+#>>>>>>>>>>>>> perform skull stripping
+3dSkullStrip -input ${out_struct} -prefix ${study_dir}/${subj}_raw/struct/${subj}struct_SS+orig.BRIK
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 echo "done ${subj}"
 end
 
-##
-#to add
-
-#3dSkullStrip
-#>> 3dSkullStrip -input <out6.1> -prefix <out8.0>
-#@autotlrc
-#>> @autotlrc  -no_ss -base <in8.0> -input <out7.0>
-#align_epi_anat.py
-#>> align_epi_anat.py –epi2anat –anat <out8.0> -epi <out6.2> -epi_base mid_point –tlrc_apar <out9.0>
 #3dDespike
 #>> 3dDespike –ignore 2 –prefix <out11.0>  <out10.0>
 #3dBlurToFWHM
