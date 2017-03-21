@@ -98,12 +98,12 @@ cd ${dir}/${subj}_raw/struct/
 
 #> run realignment
 cd dir
-set anat = ${dir}/${subj}_raw/struct/${subj}struct_SS+orig.BRIK
+set anat = ${dir}/${subj}_raw/struct/${subj}struct+orig.BRIK
 set epi = ${dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}FearAcqFunc+orig.BRIK
-set tlrc_apar = ${dir}/${subj}_raw/struct/${subj}struct_SS+tlrc.BRIK
+set tlrc_apar = ${dir}/${subj}_raw/struct/${subj}struct+tlrc.BRIK
 
 cd ${dir}/${subj}_raw/Fear_cond/Fear_acq/
-align_epi_anat.py -epi2anat -anat ${anat} -epi ${epi} -epi_base 97 -tlrc_apar ${tlrc_apar}
+align_epi_anat.py -epi2anat -anat_has_skull no -anat ${anat} -epi ${epi} -epi_base 97 -tlrc_apar ${tlrc_apar}
 
 echo "done ${subj}"
 end
