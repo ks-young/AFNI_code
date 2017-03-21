@@ -56,7 +56,7 @@ set n_OL = ${study_dir}/${subj}_raw/Fear_cond/Fear_ext/${subj}_OL_overp02.txt
 set mid = ${study_dir}/${subj}_raw/Fear_cond/Fear_acq/${subj}_OL_mid.txt
 set struct_tlrc = ${study_dir}/${subj}_raw/struct/${subj}struct_SS+tlrc.BRIK
 set OL_frac = ${study_dir}/${subj}_raw/Fear_cond/Fear_ext/${subj}_OL_frac.txt
-set struct_tlrc = ${study_dir}/${subj}_raw/struct/${subj}struct_SS+tlrc.BRIK
+set struct_tlrc = ${study_dir}/${subj}_raw/struct/${subj}struct+tlrc.BRIK
 set func_tlrc = ${study_dir}/${subj}_raw/Fear_cond/Fear_ext/${subj}FearExtFunc_tlrc_al+tlrc.BRIK 
 
 #set files
