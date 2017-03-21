@@ -26,7 +26,7 @@ endif
 echo "\nscanner: ${scanner}"
 
 
-foreach subj (9201) #(`cat AFNI_list`)
+foreach subj (9211) #(`cat AFNI_list`)
 
 #9201 9202 9203 9204 9205 9206 9207 9208 9209 9211 
 #9212 9213 9216 9217 9218 9219 9223 9224 9225 9226 
@@ -60,7 +60,7 @@ echo "\ntask: ${task}"
 set bet_struct = ${study_dir}/${subj}_raw/struct/${subj}struct_restore_optiBET_brain.nii.gz
 set out_struct = ${study_dir}/${subj}_raw/struct/${subj}struct+orig.BRIK
 set func_file = (`ls ${study_dir}/${subj}_raw/${task_dir}/${subj}*.feat/filtered_func_data.nii.gz`)
-set out_func = ${study_dir}/${subj}_raw/${task_dir}/${subj}${task}Func+orig.BRIK
+set out_func = ${study_dir}/${subj}_raw/${task_dir}/$r{subj}${task}Func+orig.BRIK
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #run functions%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
