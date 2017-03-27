@@ -9,7 +9,7 @@
 #scanner = trio / prisma / ge
 set scanner = trio
 #task = FearAcq, FearExt, MID1, MID2
-set task = FearAcq
+set task = FearExt
 #QA stage = BET, FEAT, OL_PLOT, OL_LIST, OL_MID, ALIGN, OVERLAP_CHECK
 set QA = ALIGN
 
@@ -26,7 +26,7 @@ echo "error setting scanner"
 endif
 echo "\nscanner: ${scanner}"
 
-foreach subj (9201) 
+foreach subj (9201 9202 9203 9204 9205 9206 9207 9208 9209 9211 9212 9213 9216 9217 9218 9219 9223 9224 9225 9226 9227 9228 9230 9231 9232 9233 9235 9236 9237 9238 9239 9241 9242 9243 9244 9245 9246 9247 9248 9251 9252 9254 9255 9257 9258 9259 9260 9261 9263 9264 9265 9266 9267 9268 9270 9271 9273 9274 9277 9279 9282 9283 9284 9285 9286 9287 9288 9289 9290) 
 #TRIO
 #9201 9202 9203 9204 9205 9206 9207 9208 9209 9211 
 #9212 9213 9216 9217 9218 9219 9223 9224 9225 9226 
@@ -40,7 +40,7 @@ foreach subj (9201)
 #9292 9293 9294 9295 9296 9298 9300 9301 9302 9303 
 #9304 9305 9306 9307 9308 9309 9310 9311 9312 9314 
 #9315 9316 9317 9320
-echo "\nsubject: ${subj}"
+#echo "\nsubject: ${subj}"
 #set task
 if (${task} == "FearAcq") then
 set task_dir = Fear_cond/Fear_acq
@@ -55,7 +55,7 @@ set task_dir = MID/MID2
 else
 echo "error setting task files"
 endif
-echo "\ntask: ${task}"
+#echo "\ntask: ${task}"
 
 #set files
 set base_img = ${study_dir}/${subj}_raw/struct/${subj}struct_restore.nii.gz
@@ -63,7 +63,7 @@ set optibet_img = ${study_dir}/${subj}_raw/struct/${subj}struct_restore_optiBET_
 set feat_report = (`ls ${study_dir}/${subj}_raw/${task_dir}/${subj}*.feat/report_unwarp.html`)
 set OL_file = ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL_DS.txt
 set n_OL = ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL_overp02.txt
-set mid = ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL_mid.txt
+set mid = ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL_mid_frac.txt
 set struct_tlrc = ${study_dir}/${subj}_raw/struct/${subj}struct_SS+tlrc.BRIK
 set OL_frac = ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL_frac.txt
 set struct_tlrc = ${study_dir}/${subj}_raw/struct/${subj}struct+tlrc.BRIK
