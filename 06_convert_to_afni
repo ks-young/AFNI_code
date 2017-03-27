@@ -7,9 +7,10 @@
 
 #scanner = trio / prisma / ge
 set scanner = trio
+foreach task (FearAcq)
 #task = FearAcq, FearExt, MID1, MID2
-set task = MID2
-#parts to run ALL (conversion, outlier detection, convert to taliarach & realign), SS = skull strip, DSB = despike/blur
+#set task = MID2
+#parts to run ALL (conversion, outlier detection, convert to taliarach & realign), SS = skull strip, DSB = despike/blur, mp = just midpoint
 set run = ALL
 
 #-------------------------------------------------------------------------------------#
@@ -26,7 +27,7 @@ endif
 echo "\nscanner: ${scanner}"
 
 
-foreach subj (9201 9202 9203 9204 9205 9206 9207 9208 9209 9211 9212 9213 9216 9217 9218 9219 9223 9224 9225 9226 9227 9228 9230 9231 9232 9233 9235 9236 9237 9238 9239 9241 9242 9243 9244 9245 9246 9247 9248 9251 9252 9254 9255 9257 9258 9259 9260 9261 9263 9264 9265 9266 9267 9268 9270 9271 9273 9274 9277 9279 9282 9283 9284 9285 9286 9287 9288 9289 9290) #(`cat AFNI_list`)
+foreach subj (9211 9217 9238 9252 9254 9270) #(`cat AFNI_list`)
 
 #9201 9202 9203 9204 9205 9206 9207 9208 9209 9211 
 #9212 9213 9216 9217 9218 9219 9223 9224 9225 9226 
@@ -77,7 +78,7 @@ echo "subj = ${subj}"
 #>>>>>>>>>>>>> Outlier detection
 3dToutcount -fraction -automask ${out_func} > ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL_frac.txt
 awk '$1 > .02' ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL_frac.txt | wc -l > ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL_overp02.txt
-sed -n mp ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL.txt > ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL_mid.txt
+sed -n mp ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL_frac.txt > ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL_mid.txt
 
 #>>>>>>>>>>>>> run conversion to taliarach coordinates (auto_tlrc)
 cd ${study_dir}/${subj}_raw/struct/
@@ -89,7 +90,7 @@ set anat = ${study_dir}/${subj}_raw/struct/${subj}struct+orig.BRIK
 set epi = ${study_dir}/${subj}_raw/${task_dir}/${subj}${task}Func+orig.BRIK
 set tlrc_apar = ${study_dir}/${subj}_raw/struct/${subj}struct+tlrc.BRIK
 cd ${study_dir}/${subj}_raw/${task_dir}
-align_epi_anat.py -epi2anat -anat_has_skull no -anat ${anat} -epi ${epi} -epi_base 97 -tlrc_apar ${tlrc_apar}
+align_epi_anat.py -epi2anat -anat_has_skull no -anat ${anat} -epi ${epi} -epi_base ${mp} -tlrc_apar ${tlrc_apar}
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 else if (${run} == "DSB") then
@@ -110,6 +111,8 @@ set blur_4 = ${study_dir}/${subj}_raw/${task_dir}/${subj}${task}_DSB4mm+tlrc.BRI
 #blurring/smoothing 4mm
 3dBlurToFWHM -input ${despike} -prefix ${blur_4} -FWHM 4 –automask -quiet
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+else if (${run} == "mp") then
+sed -n -e ${mp}p ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL_frac.txt > ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL_mid_frac.txt
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 else if (${run} == "SS") then
 #>>>>>>>>>>>>> perform skull stripping
@@ -118,7 +121,7 @@ else if (${run} == "SS") then
 echo "done ${subj}"
 endif
 end
-
+end
 #3dDespike
 #>> 3dDespike –ignore 2 –prefix <out11.0>  <out10.0>
 #3dBlurToFWHM
