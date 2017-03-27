@@ -7,11 +7,11 @@
 
 #scanner = trio / prisma / ge
 set scanner = trio
-foreach task (FearAcq)
+foreach task (FearExt)
 #task = FearAcq, FearExt, MID1, MID2
 #set task = MID2
 #parts to run ALL (conversion, outlier detection, convert to taliarach & realign), SS = skull strip, DSB = despike/blur, mp = just midpoint
-set run = ALL
+set run = DSB
 
 #-------------------------------------------------------------------------------------#
 #set scan path
@@ -27,7 +27,7 @@ endif
 echo "\nscanner: ${scanner}"
 
 
-foreach subj (9211 9217 9238 9252 9254 9270) #(`cat AFNI_list`)
+foreach subj (9242 9290) #(`cat AFNI_list`)
 
 #9201 9202 9203 9204 9205 9206 9207 9208 9209 9211 
 #9212 9213 9216 9217 9218 9219 9223 9224 9225 9226 
