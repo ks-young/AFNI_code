@@ -1,0 +1,146 @@
+#!/bin/csh
+
+set gen_dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC/05_SECOND_LEVEL
+set task_dir = Fear_cond/Fear_acq/first_level_AM_allcond
+set scanner = trio
+#cons ACQ_CSP-CSM, ACQ_CSP-BL, ACQ_CSM-BL
+set con = "ACQ_CSM-BL"
+#-------------------------------------------------------------------------------------#
+#set scan path
+if (${scanner} == "trio") then
+set study_dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA_TRIO
+else if (${scanner} == "prisma") then
+set study_dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC/02_SUBJECTS_UCLA_PRISMA 	
+else if (${scanner} == "ge") then
+set study_dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC/03_SUBJECTS_UCSD
+else
+echo "error setting scanner"
+endif
+echo "\nscanner: ${scanner}"
+#-------------------------------------------------------------------------------------#
+set output_dir = ${gen_dir}/${scanner}/${con}
+mkdir ${output_dir}
+cd ${output_dir}
+
+if (${con} == "ACQ_CSP-CSM") then
+3dttest++ -brickwise -setA \
+'/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA_TRIO/9*_raw/Fear_cond/Fear_acq/main_contrasts/9*stats.buc_REML+tlrc.HEAD[42]' 
+
+else if (${con} == "ACQ_CSP-BL") then
+3dttest++ -brickwise -setA \
+'/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA_TRIO/9*_raw/Fear_cond/Fear_acq/main_contrasts/9*stats.buc_REML+tlrc.HEAD[46]' 
+
+else if (${con} == "ACQ_CSM-BL") then
+3dttest++ -brickwise -setA \
+'/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA_TRIO/9*_raw/Fear_cond/Fear_acq/main_contrasts/9*stats.buc_REML+tlrc.HEAD[50]' 
+
+else
+echo "error setting con"
+endif
+echo "\ncon: ${con}"
+
+#-------------------------------------------------------------------------------------#
+#3dttest++ -brickwise -setA \
+#'/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/92*_raw/Fear_cond/Fear_acq/#first_allcond/92*stats.buc_REML+tlrc.HEAD[2..53(4)]' \
+
+#3dttest++ -brickwise -setA \
+#'/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA_TRIO/9*_raw/Fear_cond/Fear_acq/main_contrasts/9*stats.buc_REML+tlrc.HEAD[42]' \
+
+#CSPlus = 46, CSMinus = 50, CSPlus-CSMinus = 42, 
+#2..62(4)
+
+#3dttest++ -setA Group1\
+#9201 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9201_raw/Fear_cond/Fear_acq/#first_level/9201stats.buc_REML+tlrc[46]' \
+#9204 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9204_raw/Fear_cond/Fear_acq/first_level/9204stats.buc_REML+tlrc[46]' \
+#9206 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9206_raw/Fear_cond/Fear_acq/first_level/9206stats.buc_REML+tlrc[46]' \
+#9207 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9207_raw/Fear_cond/Fear_acq/first_level/9207stats.buc_REML+tlrc[46]' \
+#9208 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9208_raw/Fear_cond/Fear_acq/first_level/9208stats.buc_REML+tlrc[46]' \
+#9209 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9209_raw/Fear_cond/Fear_acq/first_level/9209stats.buc_REML+tlrc[46]' \
+#9211 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9211_raw/Fear_cond/Fear_acq/first_level/9211stats.buc_REML+tlrc[46]' \
+#9212 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9212_raw/Fear_cond/Fear_acq/first_level/9212stats.buc_REML+tlrc[46]' \
+#9213 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9213_raw/Fear_cond/Fear_acq/first_level/9213stats.buc_REML+tlrc[46]' \
+#9216 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9216_raw/Fear_cond/Fear_acq/first_level/9216stats.buc_REML+tlrc[46]' \
+#9217 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9217_raw/Fear_cond/Fear_acq/first_level/9217stats.buc_REML+tlrc[46]' \
+#9218 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9218_raw/Fear_cond/Fear_acq/first_level/9218stats.buc_REML+tlrc[46]' \
+#9219 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9219_raw/Fear_cond/Fear_acq/first_level/9219stats.buc_REML+tlrc[46]' \
+#9223 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9223_raw/Fear_cond/Fear_acq/first_level/9223stats.buc_REML+tlrc[46]' \
+#9224 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9224_raw/Fear_cond/Fear_acq/first_level/9224stats.buc_REML+tlrc[46]' \
+#9225 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9225_raw/Fear_cond/Fear_acq/first_level/9225stats.buc_REML+tlrc[46]' \
+#9226 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9226_raw/Fear_cond/Fear_acq/first_level/9226stats.buc_REML+tlrc[54]' \
+#9228 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9228_raw/Fear_cond/Fear_acq/first_level/9228stats.buc_REML+tlrc[54]' \
+#9230 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9230_raw/Fear_cond/Fear_acq/first_level/9230stats.buc_REML+tlrc[54]' \
+#9231 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9231_raw/Fear_cond/Fear_acq/first_level/9231stats.buc_REML+tlrc[54]' \
+#9232 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9232_raw/Fear_cond/Fear_acq/first_level/9232stats.buc_REML+tlrc[54]' \
+#9233 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9233_raw/Fear_cond/Fear_acq/first_level/9233stats.buc_REML+tlrc[54]' \
+#9235 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9235_raw/Fear_cond/Fear_acq/first_level/9235stats.buc_REML+tlrc[54]' \
+#9237 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9237_raw/Fear_cond/Fear_acq/first_level/9237stats.buc_REML+tlrc[54]' \
+#9238 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9238_raw/Fear_cond/Fear_acq/first_level/9238stats.buc_REML+tlrc[54]' \
+#9239 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9239_raw/Fear_cond/Fear_acq/first_level/9239stats.buc_REML+tlrc[54]' \
+#9241 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9241_raw/Fear_cond/Fear_acq/first_level/9241stats.buc_REML+tlrc[54]' \
+#9242 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9242_raw/Fear_cond/Fear_acq/first_level/9242stats.buc_REML+tlrc[54]' \
+#9243 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9243_raw/Fear_cond/Fear_acq/first_level/9243stats.buc_REML+tlrc[54]' \
+#9244 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9244_raw/Fear_cond/Fear_acq/first_level/9244stats.buc_REML+tlrc[54]' \
+#9245 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9245_raw/Fear_cond/Fear_acq/first_level/9245stats.buc_REML+tlrc[54]' \
+#9246 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9246_raw/Fear_cond/Fear_acq/first_level/9246stats.buc_REML+tlrc[54]' \
+#9247 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9247_raw/Fear_cond/Fear_acq/first_level/9247stats.buc_REML+tlrc[54]' \
+#9248 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9248_raw/Fear_cond/Fear_acq/first_level/9248stats.buc_REML+tlrc[54]' \
+#9251 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9251_raw/Fear_cond/Fear_acq/first_level/9251stats.buc_REML+tlrc[54]' \
+#9252 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9252_raw/Fear_cond/Fear_acq/first_level/9252stats.buc_REML+tlrc[54]' \
+#9254 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9254_raw/Fear_cond/Fear_acq/first_level/9254stats.buc_REML+tlrc[54]' \
+#9255 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9255_raw/Fear_cond/Fear_acq/first_level/9255stats.buc_REML+tlrc[54]' \
+#9257 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9257_raw/Fear_cond/Fear_acq/first_level/9257stats.buc_REML+tlrc[54]' \
+#9258 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9258_raw/Fear_cond/Fear_acq/first_level/9258stats.buc_REML+tlrc[54]' \
+#9#259 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9259_raw/Fear_cond/Fear_acq/first_level/9259stats.buc_REML+tlrc[54]' \
+#9260 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9260_raw/Fear_cond/Fear_acq/first_level/9260stats.buc_REML+tlrc[54]' \
+#9#261 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9261_raw/Fear_cond/Fear_acq/first_level/9261stats.buc_REML+tlrc[54]' \
+#9263 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9263_raw/Fear_cond/Fear_acq/first_level/9263stats.buc_REML+tlrc[54]' \
+#9264 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9264_raw/Fear_cond/Fear_acq/first_level/9264stats.buc_REML+tlrc[54]' \
+#9265 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9265_raw/Fear_cond/Fear_acq/first_level/9265stats.buc_REML+tlrc[54]' \
+#9266 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9266_raw/Fear_cond/Fear_acq/first_level/9266stats.buc_REML+tlrc[54]' \
+#9267 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9267_raw/Fear_cond/Fear_acq/first_level/9267stats.buc_REML+tlrc[54]' \
+#9268 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9268_raw/Fear_cond/Fear_acq/first_level/9268stats.buc_REML+tlrc[54]' \
+#9270 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9270_raw/Fear_cond/Fear_acq/first_level/9270stats.buc_REML+tlrc[54]' \
+#9271 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9271_raw/Fear_cond/Fear_acq/first_level/9271stats.buc_REML+tlrc[54]' \
+#9273 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9273_raw/Fear_cond/Fear_acq/first_level/9273stats.buc_REML+tlrc[54]' \
+#9274 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9274_raw/Fear_cond/Fear_acq/first_level/9274stats.buc_REML+tlrc[54]' \
+#9277 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9277_raw/Fear_cond/Fear_acq/first_level/9277stats.buc_REML+tlrc[54]' \
+#9282 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9282_raw/Fear_cond/Fear_acq/first_level/9282stats.buc_REML+tlrc[54]' \
+#9283 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9283_raw/Fear_cond/Fear_acq/first_level/9283stats.buc_REML+tlrc[54]' \
+#9284 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9284_raw/Fear_cond/Fear_acq/first_level/9284stats.buc_REML+tlrc[54]' \
+#9285 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9285_raw/Fear_cond/Fear_acq/first_level/9285stats.buc_REML+tlrc[54]' \
+#9286 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9286_raw/Fear_cond/Fear_acq/first_level/9286stats.buc_REML+tlrc[54]' \
+#9287 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9287_raw/Fear_cond/Fear_acq/first_level/9287stats.buc_REML+tlrc[54]' \
+#9288 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9288_raw/Fear_cond/Fear_acq/first_level/9288stats.buc_REML+tlrc[54]' \
+#9289 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9289_raw/Fear_cond/Fear_acq/first_level/9289stats.buc_REML+tlrc[54]' \
+#9290 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/9290_raw/Fear_cond/Fear_acq/first_level/9290stats.buc_REML+tlrc[54]' \
+
+
+
+
+
+
+
+
+
+
+#9208 ${gen_dir}/9208_raw/${task_dir}/9208stats.buc_REML+tlrc'[51:54]' #\
+#9209 ${gen_dir}/9209_raw/${task_dir}/9209stats.buc_REML+tlrc'[54]' \
+#9211 ${gen_dir}/9211_raw/${task_dir}/9211stats.buc_REML+tlrc'[54]' \
+#9212 ${gen_dir}/9212_raw/${task_dir}/9212stats.buc_REML+tlrc'[54]' \
+#9213 ${gen_dir}/9213_raw/${task_dir}/9213stats.buc_REML+tlrc'[54]' \
+#9216 ${gen_dir}/9216_raw/${task_dir}/9216stats.buc_REML+tlrc'[54]' \
+#9217 ${gen_dir}/9217_raw/${task_dir}/9217stats.buc_REML+tlrc'[54]' \
+#9218 ${gen_dir}/9218_raw/${task_dir}/9218stats.buc_REML+tlrc'[54]' \
+#9219 ${gen_dir}/9219_raw/${task_dir}/9219stats.buc_REML+tlrc'[54]' \
+#9223 ${gen_dir}/9223_raw/${task_dir}/9223stats.buc_REML+tlrc'[54]' \
+#9225 ${gen_dir}/9225_raw/${task_dir}/9225stats.buc_REML+tlrc'[54]' \
+#9226 ${gen_dir}/9226_raw/${task_dir}/9226stats.buc_REML+tlrc'[54]' \
+#9228 ${gen_dir}/9228_raw/${task_dir}/9228stats.buc_REML+tlrc'[54]' \
+#9230 ${gen_dir}/9230_raw/${task_dir}/9230stats.buc_REML+tlrc'[54]' \
+#9231 ${gen_dir}/9231_raw/${task_dir}/9231stats.buc_REML+tlrc'[54]' \
+#9232 ${gen_dir}/9232_raw/${task_dir}/9232stats.buc_REML+tlrc'[54]' 
+
+# short form...
+#3dttest++ -brickwise -setA \
+#'/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA/92*_raw/Fear_cond/Fear_acq/#first_level/92*stats.buc_REML+tlrc.HEAD[2..62(4)]' \
+
