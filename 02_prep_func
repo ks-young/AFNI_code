@@ -1,0 +1,154 @@
+#!/bin/csh
+
+#preparation of fieldmap images for inhomogeneity correction within FEAT, see usage notes at bottom
+#scanner = trio / prisma / ge
+set scanner = trio
+foreach task (FearAcq)
+
+#task = FearAcq, FearExt, MID1, MID2
+set task = FearAcq
+
+#parts to run: fieldmaps / prep_func / inho (inhomogeneity)
+set run = inho
+
+
+#-------------------------------------------------------------------------------------#
+#set scan path
+if (${scanner} == "trio") then
+set study_dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA_TRIO
+else if (${scanner} == "prisma") then
+set study_dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC/02_SUBJECTS_UCLA_PRISMA 	
+else if (${scanner} == "ge") then
+set study_dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC/03_SUBJECTS_UCSD
+else
+echo "error setting scanner"
+endif
+echo "\nscanner: ${scanner}"
+
+
+foreach subj (9201) #(`cat AFNI_list`)
+
+#9201 9202 9203 9204 9205 9206 9207 9208 9209 9211 
+#9212 9213 9216 9217 9218 9219 9223 9224 9225 9226 
+#9227 9228 9230 9231 9232 9233 9235 9236 9237 9238 
+#9239 9241 9242 9243 9244 9245 9246 9247 9248 9251 
+#9252 9254 9255 9257 9258 9259 9260 9261 9263 9264 
+#9265 9266 9267 9268 9270 9271 9273 9274 9277 9279 
+#9282 9283 9284 9285 9286 9287 9288 9289 9290
+
+#set task files%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+set struct_file = ${study_dir}/${subj}_raw/struct/${subj}struct_restore_optiBET_brain
+if (${task} == "FearAcq") then
+set task_dir = Fear_cond/Fear_acq
+set data_dir = (`find ${study_dir}/${subj}_raw/raw/ -type d -name "Fear_Cond_UCLA_1*"`)
+set func_file = FearAcqUCLA${subj}.nii.gz
+set npts = (`ls ${study_dir}/${subj}_raw/raw/Fear_Cond_UCLA_1*/*.dcm |wc -l`)
+else if (${task} == "FearExt") then
+set task_dir = Fear_cond/Fear_ext 
+set data_dir = (`find ${study_dir}/${subj}_raw/raw/ -type d -name "Fear_Cond_UCLA_2*"`)
+set func_file = FearExtUCLA${subj}.nii.gz
+set npts = (`ls ${study_dir}/${subj}_raw/raw/Fear_Cond_UCLA_2*/*.dcm |wc -l`)
+else if (${task} == "MID1") then
+set task_dir = MID/Part1
+else if (${task} == "MID2") then
+set task_dir = MID/Part2
+else
+echo "error setting task files"
+endif
+echo "\ntask: ${task}"
+#%%%FIELDMAPS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if (${run} == "fieldmaps") then
+echo "preparing Fieldmaps"
+echo "subj = ${subj}"
+
+cd ${study_dir}/${subj}_raw
+mkdir FMaps
+cd FMaps
+#---convert to afni format (dcm2nii messes up slices)
+to3d -prefix ${subj}FM_Mag ${study_dir}/${subj}_raw/raw/gre_field_mapping_6/*.dcm
+to3d -prefix ${subj}FM_Phase ${study_dir}/${subj}_raw/raw/gre_field_mapping_7/*.dcm
+#---convert to .nii.gz format
+3dcalc -a ${study_dir}/${subj}_raw/FMaps/${subj}FM_Mag+orig -expr "a" -prefix ${study_dir}/${subj}_raw/FMaps/${subj}FMMag.nii.gz
+
+3dcalc -a ${study_dir}/${subj}_raw/FMaps/${subj}FM_Phase+orig -expr "a" -prefix ${study_dir}/${subj}_raw/FMaps/${subj}FMPhase.nii.gz
+#---brain extract mag image
+bet ${study_dir}/${subj}_raw/FMaps/${subj}FMMag.nii.gz ${study_dir}/${subj}_raw/FMaps/${subj}FMMag_brain.nii.gz
+#---prepare fieldmap
+fsl_prepare_fieldmap SIEMENS ${study_dir}/${subj}_raw/FMaps/${subj}FMPhase.nii.gz ${study_dir}/${subj}_raw/FMaps/${subj}FMMag_brain.nii.gz ${study_dir}/${subj}_raw/FMaps/${subj}FMap_rads 2.46
+
+cd ${studydir}
+#%%%PREP_FUNC%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+else if (${run} == prep_func) then
+echo "Converting FC Files"
+echo "subj = ${subj}"
+
+set output_dir = ${study_dir}/${subj}_raw/${task_dir}
+
+mkdir -p ${output_dir}
+
+cd ${data_dir}
+echo "data_dir ${data_dir}"
+echo "DCM2NII ${output_dir}"
+dcm2nii -d N -a N -e N -i Y -o ${output_dir} *.dcm
+cd output_dir
+mv "FearCondUCLA1${subj}.nii.gz" "FearAcqUCLA${subj}.nii.gz"
+echo "done ${subj}"
+
+#%%INHO%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+else if (${run} == inho) then
+#%%%
+echo "inhomogeneity subj ${subj}"
+
+#B0 unwarping
+set fmap_file = ${study_dir}/${subj}_raw/FMaps/${subj}_rawFMPhase
+set fmap_mag_file = ${study_dir}/${subj}_raw/FMaps/${subj}_rawFMMag_brain
+set func_file = ${study_dir}/${subj}_raw/${task_dir}/${task}UCLA${subj}.nii.gz
+cp /space/raid6/data/craske/POS_NEG_EMO_RDOC/10_SCRIPTS/other_files/feat_files/design.fsf ${study_dir}/${subj}_raw/${task_dir}/tmpDesign.fsf
+set out_dir = ${study_dir}/${subj}_raw/${task_dir}
+
+
+#DO NOT EDIT BELOW THIS LINE!
+#-----------------------------------------------------------------------------------
+#change location of output dir
+sed -i -e 's|set fmri(outputdir) ""|set fmri(outputdir) "'"$out_dir/$subj$task.feat"'"|' ${out_dir}/tmpDesign.fsf
+
+#change location of functional dir
+sed -i -e 's|set feat_files(1) ""|set feat_files(1) "'"$func_file"'"|' ${out_dir}/tmpDesign.fsf
+
+#change location of structural dir
+sed -i -e 's|set highres_files(1) ""|set highres_files(1) "'"$struct_file"'"|' ${out_dir}/tmpDesign.fsf
+
+#change location of fieldmap file
+ 
+sed -i -e 's|set unwarp_files(1) ""|set unwarp_files(1) "'"$fmap_file"'"|' ${out_dir}/tmpDesign.fsf
+#change location of fieldmap mag file
+sed -i -e 's|set unwarp_files_mag(1) ""|set unwarp_files_mag(1) "'"$fmap_mag_file"'"|' ${out_dir}/tmpDesign.fsf
+
+#change number of TRs
+sed -i -e 's|set fmri(npts) 189|set fmri(npts) "'"$npts"'"|' ${out_dir}/tmpDesign.fsf
+
+#copy temp file to executed file
+cp ${out_dir}/tmpDesign.fsf ${out_dir}/${subj}Design.fsf
+
+#run feat command
+feat ${out_dir}/${subj}Design.fsf
+
+#%%%
+echo "done ${subj}"
+endif
+
+
+end
+
+#-----NOTES------------------------------------------
+
+#Usage: fsl_prepare_fieldmap <scanner> <phase_image> <magnitude_image> <out_image> <deltaTE (in ms)> [--nocheck]
+ 
+#  Prepares a fieldmap suitable for FEAT from SIEMENS data - saves output in rad/s format
+#  <scanner> must be SIEMENS
+#  <magnitude image> should be Brain Extracted (with BET or otherwise)
+#  <deltaTE> is the echo time difference of the fieldmap sequence - find this out form the operator (defaults are *usually* 2.46ms on SIEMENS)
+#  --nocheck supresses automatic sanity checking of image size/range/dimensions
+ 
+#   e.g. fsl_prepare_fieldmap SIEMENS images_3_gre_field_mapping images_4_gre_field_mapping fmap_rads 2.65
+
