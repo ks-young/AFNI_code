@@ -1,0 +1,48 @@
+#!/bin/csh
+
+# Extracts ROI data
+#scanner = trio / prisma / ge
+set scanner = trio
+foreach task (FearAcq)
+#task = FearAcq, FearExt, MID1, MID2
+set contrasts = main #main, split
+#set task files%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if (${task} == "FearAcq") then
+set task_dir = Fear_cond/Fear_acq
+else if (${task} == "FearExt") then
+set task_dir = Fear_cond/Fear_ext 
+else if (${task} == "MID1") then
+set task_dir = MID/Part1
+else if (${task} == "MID2") then
+set task_dir = MID/Part2
+else
+echo "error setting task files"
+endif
+#-------------------------------------------------------------------------------------#
+#set scan path
+if (${scanner} == "trio") then
+set study_dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA_TRIO
+else if (${scanner} == "prisma") then
+set study_dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC/02_SUBJECTS_UCLA_PRISMA 	
+else if (${scanner} == "ge") then
+set study_dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC/03_SUBJECTS_UCSD
+else
+echo "error setting scanner"
+endif
+echo "\nscanner: ${scanner}"
+
+set output = ROI_test
+
+set roi_dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC/10_SCRIPTS/other_files/roi_files
+set roi_output = /space/raid6/data/craske/POS_NEG_EMO_RDOC/04_ROIS/ROI_DATA/${scanner}
+mkdir ${roi_output}
+cd ${roi_output}
+#naming
+if (${contrast} == "main") then
+#42, 46, 50
+3dROIstats -mask ${roi_dir}/Power_functional_ROIs-MNI+tlrc '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA_TRIO/9*raw/Fear_cond/Fear_acq/main_contrasts/*stats.buc_REML+tlrc.HEAD[42,46,50]' >> ${roi_output}/${task}_power_rois_main_con
+else if (${contrast} == "split") then
+3dROIstats -mask ${roi_dir}/Power_functional_ROIs-MNI+tlrc '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA_TRIO/9*raw/Fear_cond/Fear_acq/split_contrasts/*stats.buc_REML+tlrc.HEAD[]' >> ${roi_output}/${task}_power_rois_split_con
+endif
+end
+#end 
