@@ -22,6 +22,8 @@ set output_dir = ${gen_dir}/${scanner}/${con}
 mkdir ${output_dir}
 cd ${output_dir}
 
+#MAIN CONTRASTS
+#-------------------------------------------------------------------------------------#
 if (${con} == "ACQ_CSP-CSM") then
 3dttest++ -brickwise -setA \
 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA_TRIO/9*_raw/Fear_cond/Fear_acq/main_contrasts/9*stats.buc_REML+tlrc.HEAD[42]' 
@@ -31,6 +33,10 @@ else if (${con} == "ACQ_CSP-BL") then
 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA_TRIO/9*_raw/Fear_cond/Fear_acq/main_contrasts/9*stats.buc_REML+tlrc.HEAD[46]' 
 
 else if (${con} == "ACQ_CSM-BL") then
+3dttest++ -brickwise -setA \
+'/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA_TRIO/9*_raw/Fear_cond/Fear_acq/main_contrasts/9*stats.buc_REML+tlrc.HEAD[50]' 
+
+else if (${con} == "Last4CSP-First4CSP") then
 3dttest++ -brickwise -setA \
 '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA_TRIO/9*_raw/Fear_cond/Fear_acq/main_contrasts/9*stats.buc_REML+tlrc.HEAD[50]' 
 
