@@ -5,7 +5,7 @@
 set scanner = trio
 foreach task (FearAcq)
 #task = FearAcq, FearExt, MID1, MID2
-set contrasts = main #main, split
+set contrast = main #main, split
 #set task files%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if (${task} == "FearAcq") then
 set task_dir = Fear_cond/Fear_acq
