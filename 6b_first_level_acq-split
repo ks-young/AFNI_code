@@ -23,7 +23,7 @@ echo "error setting scanner"
 endif
 echo "\nscanner: ${scanner}"
 
-foreach subj (9205 9206 9207 9208 9209 9211 9212 9213 9216 9217 9218 9219 9223 9224 9225 9226 9227 9228 9230 9231 9232 9233 9235 9236 9237 9238 9239 9241 9242 9243 9244 9245 9246 9247 9248 9251 9252 9254 9255 9257 9258 9259 9260 9261 9263 9264 9265 9266 9267 9268 9270 9271 9273 9274 9277 9279 9282 9283 9284 9285 9286 9287 9288 9289 9290)
+foreach subj (9201 9204 9205 9206 9207 9208 9209 9211 9212 9213 9216 9217 9218 9219 9223 9224 9225 9226 9227 9228 9230 9231 9232 9233 9235 9236 9237 9238 9239 9241 9242 9243 9244 9245 9246 9247 9248 9251 9252 9254 9255 9257 9258 9259 9260 9261 9263 9264 9265 9266 9267 9268 9270 9271 9273 9274 9277 9279 9282 9283 9284 9285 9286 9287 9288 9289 9290)
 
 #9201 9202 9203 9204 9205 9206 9207 9208 9209 9211 
 #9212 9213 9216 9217 9218 9219 9223 9224 9225 9226 
@@ -36,8 +36,10 @@ foreach subj (9205 9206 9207 9208 9209 9211 9212 9213 9216 9217 9218 9219 9223 9
 #set task files%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if (${task} == "FearAcq") then
 set task_dir = Fear_cond/Fear_acq
+set taskname = Acq
 else if (${task} == "FearExt") then
 set task_dir = Fear_cond/Fear_ext 
+set taskname = Ext
 else if (${task} == "MID1") then
 set task_dir = MID/Part1
 else if (${task} == "MID2") then
@@ -59,15 +61,15 @@ endif
 cd ${study_dir}/${subj}_raw/${task_dir}
 mkdir ${analysis_dir}
 3dDeconvolve \
--input ${study_dir}/${subj}_raw/${task_dir}/${subj}FearAcq_DSB4mm+tlrc.HEAD \
+-input ${study_dir}/${subj}_raw/${task_dir}/${subj}${task}DecMe+tlrc.HEAD \
 -censor ${study_dir}/${subj}_raw/${task_dir}/${subj}f_censor.1D \
 -num_stimts 12 \
--stim_times 1 ${study_dir}/${subj}_raw/behav/${subj}Acq_First_CSPlus.txt 'BLOCK(6,1)' -stim_label 1 first_cs_plus \
--stim_times 2 ${study_dir}/${subj}_raw/behav/${subj}Acq_Last_CSPlus.txt 'BLOCK(6,1)' -stim_label 2 last_cs_plus \
--stim_times 3 ${study_dir}/${subj}_raw/behav/${subj}Acq_First_CSMinus.txt 'BLOCK(6,1)' -stim_label 3 first_cs_minus \
--stim_times 4 ${study_dir}/${subj}_raw/behav/${subj}Acq_Last_CSMinus.txt 'BLOCK(6,1)' -stim_label 4 last_cs_minus \
--stim_times 5 ${study_dir}/${subj}_raw/behav/${subj}Acq_Context.txt 'BLOCK(3,1)' -stim_label 5 context \
--stim_times 6 ${study_dir}/${subj}_raw/behav/${subj}Acq_Shock.txt 'BLOCK(0.5,1)' -stim_label 6 shock \
+-stim_times 1 ${study_dir}/${subj}_raw/behav/${subj}${taskname}_First_CSPlus.txt 'BLOCK(6,1)' -stim_label 1 first_cs_plus \
+-stim_times 2 ${study_dir}/${subj}_raw/behav/${subj}${taskname}_Last_CSPlus.txt 'BLOCK(6,1)' -stim_label 2 last_cs_plus \
+-stim_times 3 ${study_dir}/${subj}_raw/behav/${subj}${taskname}_First_CSMinus.txt 'BLOCK(6,1)' -stim_label 3 first_cs_minus \
+-stim_times 4 ${study_dir}/${subj}_raw/behav/${subj}${taskname}_Last_CSMinus.txt 'BLOCK(6,1)' -stim_label 4 last_cs_minus \
+-stim_times 5 ${study_dir}/${subj}_raw/behav/${subj}${taskname}_Context.txt 'BLOCK(3,1)' -stim_label 5 context \
+-stim_times 6 ${study_dir}/${subj}_raw/behav/${subj}${taskname}_Shock.txt 'BLOCK(0.5,1)' -stim_label 6 shock \
 -stim_file 7 ${subj}FearAcqFunc_vr_motion.1D'[0]' -stim_label 7 roll \
 -stim_file 8 ${subj}FearAcqFunc_vr_motion.1D'[1]' -stim_label 8 pitch \
 -stim_file 9 ${subj}FearAcqFunc_vr_motion.1D'[2]' -stim_label 9 yaw \
@@ -79,7 +81,7 @@ mkdir ${analysis_dir}
 -gltsym 'SYM: +1*last_cs_plus -1*last_cs_minus ' -glt_label 2 "Late_CSPlus-Late_CSMinus" \
 -gltsym 'SYM: +1*first_cs_plus -1*last_cs_plus ' -glt_label 3 "Early_CSPlus-Late_CSPlus" \
 -gltsym 'SYM: +1*first_cs_minus -1*last_cs_minus ' -glt_label 4 "Early_CSMinus-Late_CSMinus" \
--fout -rout -tout \
+-fout -rout -tout -bout \
 -nofull_first \
 -x1D ${study_dir}/${subj}_raw/${task_dir}/${analysis_dir}/X.xmat.1D -xjpeg  ${study_dir}/${subj}_raw/${task_dir}/${analysis_dir}/X.jpg \
 -bucket ${study_dir}/${subj}_raw/${task_dir}/${analysis_dir}/${subj}stats.buc #output file
