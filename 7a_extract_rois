@@ -3,7 +3,7 @@
 # Extracts ROI data
 #scanner = trio / prisma / ge
 set scanner = trio
-foreach task (FearAcq)
+foreach task (FearExt)
 #task = FearAcq, FearExt, MID1, MID2
 set contrast = main #main, split
 #set task files%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -39,10 +39,22 @@ mkdir ${roi_output}
 cd ${roi_output}
 #naming
 if (${contrast} == "main") then
+if (${task} == "FearAcq") then
 #42, 46, 50
 3dROIstats -mask ${roi_dir}/Power_functional_ROIs-MNI+tlrc '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA_TRIO/9*raw/Fear_cond/Fear_acq/main_contrasts/*stats.buc_REML+tlrc.HEAD[42,46,50]' >> ${roi_output}/${task}_power_rois_main_con
+else if (${task} == "FearExt") then
+#38, 42, 46
+3dROIstats -mask ${roi_dir}/Power_functional_ROIs-MNI+tlrc '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA_TRIO/9*raw/Fear_cond/Fear_ext/main_contrasts/*stats.buc_REML+tlrc.HEAD[38,42,46]' >> ${roi_output}/${task}_power_rois_main_con
+endif
 else if (${contrast} == "split") then
+if (${task} == "FearAcq") then
+#
 3dROIstats -mask ${roi_dir}/Power_functional_ROIs-MNI+tlrc '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA_TRIO/9*raw/Fear_cond/Fear_acq/split_contrasts/*stats.buc_REML+tlrc.HEAD[]' >> ${roi_output}/${task}_power_rois_split_con
+else if (${task} == "FearExt") then
+#
+3dROIstats -mask ${roi_dir}/Power_functional_ROIs-MNI+tlrc '/space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA_TRIO/9*raw/Fear_cond/Fear_ext/main_contrasts/*stats.buc_REML+tlrc.HEAD[]' >> ${roi_output}/${task}_power_rois_split_con
+endif
+
 endif
 end
 #end 
