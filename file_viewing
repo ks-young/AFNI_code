@@ -7,11 +7,11 @@
 #>>>>>>>>>>>>>>>
 
 #scanner = trio / prisma / ge
-set scanner = trio
+set scanner = prisma
 #task = FearAcq, FearExt, MID1, MID2
 set task = FearExt
 #QA stage = BET, FEAT, OL_PLOT, OL_LIST, OL_MID, ALIGN, OVERLAP_CHECK
-set QA = ALIGN
+set QA = FEAT
 
 #-------------------------------------------------------------------------------------#
 #set scan path
@@ -26,7 +26,8 @@ echo "error setting scanner"
 endif
 echo "\nscanner: ${scanner}"
 
-foreach subj (9290) 
+foreach subj (9292 9293 9294 9295 9296 9298 9300 9301 9302 9303 ) 
+
 #TRIO
 #9201 9202 9203 9204 9205 9206 9207 9208 9209 9211 
 #9212 9213 9216 9217 9218 9219 9223 9224 9225 9226 
@@ -39,7 +40,9 @@ foreach subj (9290)
 #PRISMA
 #9292 9293 9294 9295 9296 9298 9300 9301 9302 9303 
 #9304 9305 9306 9307 9308 9309 9310 9311 9312 9314 
-#9315 9316 9317 9320
+#9315 9316 9317 9320 9321 9322 9323 9324 9325 9326 
+#9327 9328
+
 #echo "\nsubject: ${subj}"
 #set task
 if (${task} == "FearAcq") then
