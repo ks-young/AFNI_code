@@ -2,11 +2,11 @@
 
 #preparation of fieldmap images for inhomogeneity correction within FEAT, see usage notes at bottom
 #scanner = trio / prisma / ge
-set scanner = trio
+set scanner = prisma
 foreach task (FearAcq)
 
 #task = FearAcq, FearExt, MID1, MID2
-set task = FearAcq
+#set task = FearAcq
 
 #parts to run: fieldmaps / prep_func / inho (inhomogeneity)
 set run = inho
@@ -26,8 +26,10 @@ endif
 echo "\nscanner: ${scanner}"
 
 
-foreach subj (9201) #(`cat AFNI_list`)
+foreach subj (9292)
+# 9293 9294 9295 9296 9298 9300 9301 9302 9303 9304 9305 9306 9307 9308 9309 9310 9311 9312 9314 9315 9316 9317 9320 9321 9322 9323 9324 9325 9326 9327 9328) #(`cat AFNI_list`)
 
+#TRIO
 #9201 9202 9203 9204 9205 9206 9207 9208 9209 9211 
 #9212 9213 9216 9217 9218 9219 9223 9224 9225 9226 
 #9227 9228 9230 9231 9232 9233 9235 9236 9237 9238 
@@ -35,6 +37,12 @@ foreach subj (9201) #(`cat AFNI_list`)
 #9252 9254 9255 9257 9258 9259 9260 9261 9263 9264 
 #9265 9266 9267 9268 9270 9271 9273 9274 9277 9279 
 #9282 9283 9284 9285 9286 9287 9288 9289 9290
+
+#PRISMA
+#9292 9293 9294 9295 9296 9298 9300 9301 9302 9303 
+#9304 9305 9306 9307 9308 9309 9310 9311 9312 9314 
+#9315 9316 9317 9320 9321 9322 9323 9324 9325 9326 
+#9327 9328
 
 #set task files%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 set struct_file = ${study_dir}/${subj}_raw/struct/${subj}struct_restore_optiBET_brain
@@ -76,7 +84,7 @@ bet ${study_dir}/${subj}_raw/FMaps/${subj}FMMag.nii.gz ${study_dir}/${subj}_raw/
 #---prepare fieldmap
 fsl_prepare_fieldmap SIEMENS ${study_dir}/${subj}_raw/FMaps/${subj}FMPhase.nii.gz ${study_dir}/${subj}_raw/FMaps/${subj}FMMag_brain.nii.gz ${study_dir}/${subj}_raw/FMaps/${subj}FMap_rads 2.46
 
-cd ${studydir}
+cd ${study_dir}
 #%%%PREP_FUNC%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 else if (${run} == prep_func) then
 echo "Converting FC Files"
@@ -92,6 +100,7 @@ echo "DCM2NII ${output_dir}"
 dcm2nii -d N -a N -e N -i Y -o ${output_dir} *.dcm
 cd output_dir
 mv "FearCondUCLA1${subj}.nii.gz" "FearAcqUCLA${subj}.nii.gz"
+mv "FearCondUCLA2${subj}.nii.gz" "FearExtUCLA${subj}.nii.gz"
 echo "done ${subj}"
 
 #%%INHO%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -100,8 +109,13 @@ else if (${run} == inho) then
 echo "inhomogeneity subj ${subj}"
 
 #B0 unwarping
+if (${scanner} == trio) then
 set fmap_file = ${study_dir}/${subj}_raw/FMaps/${subj}_rawFMPhase
 set fmap_mag_file = ${study_dir}/${subj}_raw/FMaps/${subj}_rawFMMag_brain
+else if (${scanner} == prisma) then
+set fmap_file = ${study_dir}/${subj}_raw/FMaps/${subj}FMPhase
+set fmap_mag_file = ${study_dir}/${subj}_raw/FMaps/${subj}FMMag_brain
+endif
 set func_file = ${study_dir}/${subj}_raw/${task_dir}/${task}UCLA${subj}.nii.gz
 cp /space/raid6/data/craske/POS_NEG_EMO_RDOC/10_SCRIPTS/other_files/feat_files/design.fsf ${study_dir}/${subj}_raw/${task_dir}/tmpDesign.fsf
 set out_dir = ${study_dir}/${subj}_raw/${task_dir}
