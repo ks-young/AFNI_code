@@ -1,0 +1,34 @@
+#!/bin/csh
+
+# perform DCM2nifti conversion, intensity normalisation and optimized brain extraction
+
+foreach subj (9319 9321 9322 9323 9324 9325 9326 9327 9328)
+echo "Processing structural files"
+echo "subj = ${subj}"
+set dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC/02_SUBJECTS_UCLA_PRISMA
+set subraw = ${dir}/${subj}_raw  # subject's raw data directory
+echo "subraw = ${subraw}"
+
+set output_dir = ${subraw}/struct
+mkdir -p ${output_dir}
+
+
+#> RUN DCM2NII
+set struc_dir = (`find ${subraw}/raw/ -type d -name "MPRage*"`)
+cd struc_dir
+echo "DCM2NII ${subj}"
+dcm2nii -d N -a N -e N -i Y -o ${output_dir} *.dcm
+
+#> Run intensity normalization
+echo "BIAS Field correction ${subj}"
+fast -t 1 -n 3 -H 0.1 -I 4 -l 20.0 --nopve -B -o "${output_dir}/${subj}struct.nii.gz" "${output_dir}/coMPRage${subj}.nii.gz"
+
+#> Run optimised Brain Extraction
+echo "OptiBET ${subj}"
+sh optiBET.sh -i "${output_dir}/${subj}struct_restore.nii.gz" -f
+#sh RDoc_optiBET.sh -i "${output_dir}/${subj}struct_restore.nii.gz" -f
+
+echo "done ${subj}"
+end
+
+#alt BET -B -f .35 (also -c for center coordinates)
