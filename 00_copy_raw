@@ -1,0 +1,19 @@
+#!/bin/csh
+
+# copy files from raw data directory to appropriate directories for preprocessing
+
+foreach subj (9319 9321 9322 9323 9324 9325 9326 9327 9328) #(`cat FC_sublist_UCLA_temp`)
+echo "subj = ${subj}"
+set gen_dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC
+set raw_dir = ${gen_dir}/00_raw_data/CRASKEGROUP/PRISMA/${subj}/Prisma_fit_MR*/*/CRASKE^STUDY_1/*
+echo "rawdir = ${raw_dir}"
+set pro_dir = ${gen_dir}/02_SUBJECTS_UCLA_PRISMA/${subj}_raw/raw
+
+mkdir -p ${pro_dir}
+
+cp -r ${raw_dir} ${pro_dir}
+
+echo "done ${subj}"
+end
+
+
