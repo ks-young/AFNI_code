@@ -8,7 +8,7 @@ foreach task (FearAcq)
 #task = FearAcq, FearExt, MID1, MID2
 #set task = FearAcq
 
-#parts to run: fieldmaps / prep_func / inho (inhomogeneity)
+#parts to run: fieldmaps (prepare fieldmaps) / prep_func (dcm2nii) / inho (inhomogeneity)
 set run = inho
 
 
@@ -26,8 +26,7 @@ endif
 echo "\nscanner: ${scanner}"
 
 
-foreach subj (9292)
-# 9293 9294 9295 9296 9298 9300 9301 9302 9303 9304 9305 9306 9307 9308 9309 9310 9311 9312 9314 9315 9316 9317 9320 9321 9322 9323 9324 9325 9326 9327 9328) #(`cat AFNI_list`)
+foreach subj (9293) #(`cat AFNI_list`)
 
 #TRIO
 #9201 9202 9203 9204 9205 9206 9207 9208 9209 9211 
@@ -41,11 +40,11 @@ foreach subj (9292)
 #PRISMA
 #9292 9293 9294 9295 9296 9298 9300 9301 9302 9303 
 #9304 9305 9306 9307 9308 9309 9310 9311 9312 9314 
-#9315 9316 9317 9320 9321 9322 9323 9324 9325 9326 
-#9327 9328
+#9315 9316 9317 9318 9319 9320 9321 9322 9323 9324 
+#9325 9326 9327 9328
 
 #set task files%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-set struct_file = ${study_dir}/${subj}_raw/struct/${subj}struct_restore_optiBET_brain
+set struct_file = ${study_dir}/${subj}_raw/struct/${subj}struct_restore_optiBET_brain_MNI
 if (${task} == "FearAcq") then
 set task_dir = Fear_cond/Fear_acq
 set data_dir = (`find ${study_dir}/${subj}_raw/raw/ -type d -name "Fear_Cond_UCLA_1*"`)
@@ -73,14 +72,18 @@ cd ${study_dir}/${subj}_raw
 mkdir FMaps
 cd FMaps
 #---convert to afni format (dcm2nii messes up slices)
-to3d -prefix ${subj}FM_Mag ${study_dir}/${subj}_raw/raw/gre_field_mapping_6/*.dcm
-to3d -prefix ${subj}FM_Phase ${study_dir}/${subj}_raw/raw/gre_field_mapping_7/*.dcm
+#to3d -prefix ${subj}FM_Mag ${study_dir}/${subj}_raw/raw/gre_field_mapping_6/*.dcm
+#to3d -prefix ${subj}FM_Phase ${study_dir}/${subj}_raw/raw/gre_field_mapping_7/*.dcm
 #---convert to .nii.gz format
-3dcalc -a ${study_dir}/${subj}_raw/FMaps/${subj}FM_Mag+orig -expr "a" -prefix ${study_dir}/${subj}_raw/FMaps/${subj}FMMag.nii.gz
-
-3dcalc -a ${study_dir}/${subj}_raw/FMaps/${subj}FM_Phase+orig -expr "a" -prefix ${study_dir}/${subj}_raw/FMaps/${subj}FMPhase.nii.gz
+#3dcalc -a ${study_dir}/${subj}_raw/FMaps/${subj}FM_Mag+orig -expr "a" -prefix ${study_dir}/${subj}_raw/FMaps/${subj}FMMag.nii.gz
+#3dcalc -a ${study_dir}/${subj}_raw/FMaps/${subj}FM_Phase+orig -expr "a" -prefix ${study_dir}/${subj}_raw/FMaps/${subj}FMPhase.nii.gz
+if (${scanner} == "trio") then
 #---brain extract mag image
 bet ${study_dir}/${subj}_raw/FMaps/${subj}FMMag.nii.gz ${study_dir}/${subj}_raw/FMaps/${subj}FMMag_brain.nii.gz
+else if (${scanner} == "prisma") then
+#---brain extract mag image
+#bet ${study_dir}/${subj}_raw/FMaps/${subj}FMMag.nii.gz ${study_dir}/${subj}_raw/FMaps/${subj}FMMag_brain.nii.gz -f .45 -R
+endif 
 #---prepare fieldmap
 fsl_prepare_fieldmap SIEMENS ${study_dir}/${subj}_raw/FMaps/${subj}FMPhase.nii.gz ${study_dir}/${subj}_raw/FMaps/${subj}FMMag_brain.nii.gz ${study_dir}/${subj}_raw/FMaps/${subj}FMap_rads 2.46
 
@@ -113,8 +116,8 @@ if (${scanner} == trio) then
 set fmap_file = ${study_dir}/${subj}_raw/FMaps/${subj}_rawFMPhase
 set fmap_mag_file = ${study_dir}/${subj}_raw/FMaps/${subj}_rawFMMag_brain
 else if (${scanner} == prisma) then
-set fmap_file = ${study_dir}/${subj}_raw/FMaps/${subj}FMPhase
-set fmap_mag_file = ${study_dir}/${subj}_raw/FMaps/${subj}FMMag_brain
+set fmap_file = ${study_dir}/${subj}_raw/FMaps/test_reorient/${subj}FMPhase_r_MNI.nii.gz
+set fmap_mag_file = ${study_dir}/${subj}_raw/FMaps/test_reorient/${subj}FMMag_r_MNI_brain.nii.gz
 endif
 set func_file = ${study_dir}/${subj}_raw/${task_dir}/${task}UCLA${subj}.nii.gz
 cp /space/raid6/data/craske/POS_NEG_EMO_RDOC/10_SCRIPTS/other_files/feat_files/design.fsf ${study_dir}/${subj}_raw/${task_dir}/tmpDesign.fsf
