@@ -7,11 +7,11 @@
 #>>>>>>>>>>>>>>>
 
 #scanner = trio / prisma / ge
-set scanner = prisma
+set scanner = ge
 #task = FearAcq, FearExt, MID1, MID2
-set task = FearExt
-#QA stage = BET, FEAT, OL_PLOT, OL_LIST, OL_MID, ALIGN, OVERLAP_CHECK
-set QA = FEAT
+set task = FearAcq
+#QA stage = BET, BET_FMap, FEAT, OL_PLOT, OL_LIST, OL_MID, ALIGN, OVERLAP_CHECK
+set QA = BET
 
 #-------------------------------------------------------------------------------------#
 #set scan path
@@ -26,8 +26,7 @@ echo "error setting scanner"
 endif
 echo "\nscanner: ${scanner}"
 
-foreach subj (9292 9293 9294 9295 9296 9298 9300 9301 9302 9303 ) 
-
+foreach subj (05222201402)
 #TRIO
 #9201 9202 9203 9204 9205 9206 9207 9208 9209 9211 
 #9212 9213 9216 9217 9218 9219 9223 9224 9225 9226 
@@ -40,8 +39,12 @@ foreach subj (9292 9293 9294 9295 9296 9298 9300 9301 9302 9303 )
 #PRISMA
 #9292 9293 9294 9295 9296 9298 9300 9301 9302 9303 
 #9304 9305 9306 9307 9308 9309 9310 9311 9312 9314 
-#9315 9316 9317 9320 9321 9322 9323 9324 9325 9326 
-#9327 9328
+#9315 9316 9317 9318 9319 9320 9321 9322 9323 9324 
+#9325 9326 9327 9328
+
+#GE
+#0106201503 0113201601 0114201601 0123201501 0128201501 0128201502 0129201601 0204201502 0210201501 0211201502 0215201601 0218201601 0305201501 0308201601 0308201602 0308201604 0310201501 0310201502 0404201403 0406201601 0406201602 0407201601 0407201602 0413201601 0416201502 0419201601 0424201401 0425201502 0427201401 0427201601 0430201401 0503201401 0506201402 0512201501 0516201601 0517201501 0519201401 0519201501 0520201401 0520201501 0520201502 0520201601 0522201402 0524201602 0620201601 0714201401 0727201601 0804201503 0807201502 0808201603 0811201401 0811201402 0811201403 0812201402 0818201401 0818201403 0828201403 0829201401 0902201401 0904201405 0905201401 0906201401 0910201401 0911201501 0916201501 0930201401 1016201502 1022201401 1028201401 1105201502 1106201403 1109201401 1114201401 1118201402 1119201503 1120201401 1210201401 1210201402 1210201501 1215201401 1218201402 1218201403 1218201501 1219201402
+
 
 #echo "\nsubject: ${subj}"
 #set task
@@ -61,6 +64,10 @@ endif
 #echo "\ntask: ${task}"
 
 #set files
+if (${scanner} == "ge") then
+set base_img = ${study_dir}/${subj}BRIKS/struct/${subj}_in.nii.gz
+set optibet_img = ${study_dir}/${subj}BRIKS/struct/${subj}_in_optiBET_brain.nii.gz
+else
 set base_img = ${study_dir}/${subj}_raw/struct/${subj}struct_restore.nii.gz
 set optibet_img = ${study_dir}/${subj}_raw/struct/${subj}struct_restore_optiBET_brain.nii.gz
 set feat_report = (`ls ${study_dir}/${subj}_raw/${task_dir}/${subj}*.feat/report_unwarp.html`)
@@ -71,10 +78,15 @@ set struct_tlrc = ${study_dir}/${subj}_raw/struct/${subj}struct_SS+tlrc.BRIK
 set OL_frac = ${study_dir}/${subj}_raw/${task_dir}/${subj}_OL_frac.txt
 set struct_tlrc = ${study_dir}/${subj}_raw/struct/${subj}struct+tlrc.BRIK
 set func_tlrc = ${study_dir}/${subj}_raw/${task_dir}/${subj}${task}Func_tlrc_al+tlrc.BRIK 
+set fm_mag = ${study_dir}/${subj}_raw/FMaps/${subj}*FMMag.nii.gz
+set fm_mag_brain = ${study_dir}/${subj}_raw/FMaps/${subj}*FMMag_brain.nii.gz
+endif
 
 #set files
 if (${QA} == "BET") then
 fslview ${base_img} ${optibet_img} -l Blue &
+else if (${QA} == "BET_FMap") then
+fslview ${fm_mag} ${fm_mag_brain} -l Blue &
 else if (${QA} == "FEAT") then
 firefox --new-tab ${feat_report} 	
 else if (${QA} == "OL_PLOT") then
@@ -91,7 +103,7 @@ afni ${struct_tlrc} ${func_tlrc} &
 else if (${QA} == "OVERLAP_CHECK") then
 3dABoverlap ${study_dir}/${subj}_raw/struct/${subj}struct+orig.BRIK ${study_dir}/${subj}_raw/struct/${subj}struct_SS+orig.BRIK > ${study_dir}/${subj}_raw/struct/${subj}overlap.txt
 else
-echo "error setting task"
+echo "error setting files"
 endif
 
 #view optiBET
