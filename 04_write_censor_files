@@ -1,7 +1,8 @@
 #!/bin/csh
 
-foreach subj (9201)
+foreach subj (9292)
 
+#TRIO
 #9201 9202 9203 9204 9205 9206 9207 9208 9209 9211 
 #9212 9213 9216 9217 9218 9219 9223 9224 9225 9226 
 #9227 9228 9230 9231 9232 9233 9235 9236 9237 9238 
@@ -10,8 +11,14 @@ foreach subj (9201)
 #9265 9266 9267 9268 9270 9271 9273 9274 9277 9279 
 #9282 9283 9284 9285 9286 9287 9288 9289 9290
 
-set gen_dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA_TRIO
-set task_dir = ${subj}_raw/Fear_cond/Fear_acq
+#PRISMA
+#9292 9293 9294 9295 9296 9298 9300 9301 9302 9303 
+#9304 9305 9306 9307 9308 9309 9310 9311 9312 9314 
+#9315 9316 9317 9318 9319 9320 9321 9322 9323 9324 
+#9325 9326 9327 9328
+set gen_dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC/02_SUBJECTS_UCLA_PRISMA
+#set gen_dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA_TRIO
+set task_dir = ${subj}_raw/Fear_cond/Fear_ext
 set beh_dir = ${subj}_raw/behav
 
 1d_tool.py -infile ${gen_dir}/${task_dir}/${subj}_OL_frac.txt -censor_motion .02 ${gen_dir}/${task_dir}/${subj}f
