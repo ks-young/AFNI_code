@@ -2,7 +2,7 @@
 
 # Extracts ROI data
 #scanner = trio / prisma / ge
-set scanner = trio
+set scanner = prisma
 foreach task (FearExt)
 #task = FearAcq, FearExt, MID1, MID2
 set contrast = main #main, split
