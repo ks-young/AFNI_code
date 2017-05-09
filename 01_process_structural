@@ -1,18 +1,58 @@
 #!/bin/csh
 
 # perform DCM2nifti conversion, intensity normalisation and optimized brain extraction
+#scanner = trio / prisma / ge
+set scanner = ge
+#parts to run ALL (DCM2nifti, intensity normalisation, optiBET), IN = intensity normalisation, optiBET = optimized brain extraction
+set run = optiBET
 
-foreach subj (9319 9321 9322 9323 9324 9325 9326 9327 9328)
+#-------------------------------------------------------------------------------------#
+foreach subj (0106201503 0113201601 0114201601 0123201501 0128201501 0128201502 0129201601 0204201502 0210201501 0211201502 0215201601 0218201601 0305201501 0308201601 0308201602 0308201604 0310201501 0310201502 0404201403 0406201601 0406201602 0407201601 0407201602 0413201601 0416201502 0419201601 0424201401 0425201502 0427201401 0427201601 0430201401 0503201401 0506201402 0512201501 0516201601 0517201501 0519201401 0519201501 0520201401 0520201501 0520201502 0520201601 0522201402 0524201602 0620201601 0714201401 0727201601 0804201503 0807201502 0808201603 0811201401 0811201402 0811201403 0812201402 0818201401 0818201403 0828201403 0829201401 0902201401 0904201405 0905201401 0906201401 0910201401 0911201501 0916201501 0930201401 1016201502 1022201401 1028201401 1105201502 1106201403 1109201401 1114201401 1118201402 1119201503 1120201401 1210201401 1210201402 1210201501 1215201401 1218201402 1218201403 1218201501 1219201402)
+#TRIO
+#9201 9202 9203 9204 9205 9206 9207 9208 9209 9211 
+#9212 9213 9216 9217 9218 9219 9223 9224 9225 9226 
+#9227 9228 9230 9231 9232 9233 9235 9236 9237 9238 
+#9239 9241 9242 9243 9244 9245 9246 9247 9248 9251 
+#9252 9254 9255 9257 9258 9259 9260 9261 9263 9264 
+#9265 9266 9267 9268 9270 9271 9273 9274 9277 9279 
+#9282 9283 9284 9285 9286 9287 9288 9289 9290
+
+#PRISMA
+#9292 9293 9294 9295 9296 9298 9300 9301 9302 9303 
+#9304 9305 9306 9307 9308 9309 9310 9311 9312 9314 
+#9315 9316 9317 9318 9319 9320 9321 9322 9323 9324 
+#9325 9326 9327 9328
+
+#GE
+#0106201503 0113201601 0114201601 0123201501 0128201501 0128201502 0129201601 0204201502 0210201501 0211201502 0215201601 0218201601 0305201501 0308201601 0308201602 0308201604 0310201501 0310201502 0404201403 0406201601 0406201602 0407201601 0407201602 0413201601 0416201502 0419201601 0424201401 0425201502 0427201401 0427201601 0430201401 0503201401 0506201402 0512201501 0516201601 0517201501 0519201401 0519201501 0520201401 0520201501 0520201502 0520201601 0522201402 0524201602 0620201601 0714201401 0727201601 0804201503 0807201502 0808201603 0811201401 0811201402 0811201403 0812201402 0818201401 0818201403 0828201403 0829201401 0902201401 0904201405 0905201401 0906201401 0910201401 0911201501 0916201501 0930201401 1016201502 1022201401 1028201401 1105201502 1106201403 1109201401 1114201401 1118201402 1119201503 1120201401 1210201401 1210201402 1210201501 1215201401 1218201402 1218201403 1218201501 1219201402
+
 echo "Processing structural files"
 echo "subj = ${subj}"
-set dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC/02_SUBJECTS_UCLA_PRISMA
-set subraw = ${dir}/${subj}_raw  # subject's raw data directory
-echo "subraw = ${subraw}"
 
+#set scan path
+if (${scanner} == "trio") then
+set study_dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC/01_SUBJECTS_UCLA_TRIO
+set subraw = ${study_dir}/${subj}_raw  # subject's raw data directory
+echo "subraw = ${subraw}"
+else if (${scanner} == "prisma") then
+set study_dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC/02_SUBJECTS_UCLA_PRISMA 	
+set subraw = ${study_dir}/${subj}_raw  # subject's raw data directory
+echo "subraw = ${subraw}"
+else if (${scanner} == "ge") then
+set study_dir = /space/raid6/data/craske/POS_NEG_EMO_RDOC/03_SUBJECTS_UCSD
+set subraw = ${study_dir}/${subj}BRIKS  # subject's raw data directory
 set output_dir = ${subraw}/struct
 mkdir -p ${output_dir}
+echo "subraw = ${subraw}"
+set input_OB1 = ${subraw}/archive/${subj}_in+orig.BRIK.gz
+set input_OB2 = ${subraw}/archive/${subj}_in+orig.HEAD
+else
+echo "error setting scanner"
+endif
+echo "\nscanner: ${scanner}"
 
 
+if (${run} == "ALL") then
 #> RUN DCM2NII
 set struc_dir = (`find ${subraw}/raw/ -type d -name "MPRage*"`)
 cd struc_dir
@@ -23,12 +63,23 @@ dcm2nii -d N -a N -e N -i Y -o ${output_dir} *.dcm
 echo "BIAS Field correction ${subj}"
 fast -t 1 -n 3 -H 0.1 -I 4 -l 20.0 --nopve -B -o "${output_dir}/${subj}struct.nii.gz" "${output_dir}/coMPRage${subj}.nii.gz"
 
+else if (${run} == "optiBET") then
 #> Run optimised Brain Extraction
 echo "OptiBET ${subj}"
-sh optiBET.sh -i "${output_dir}/${subj}struct_restore.nii.gz" -f
-#sh RDoc_optiBET.sh -i "${output_dir}/${subj}struct_restore.nii.gz" -f
-
+#if (${scanner}=="ge") then
+mkdir -p ${subraw}/struct
+cp ${input_OB1} ${subraw}/struct
+cp ${input_OB2} ${subraw}/struct
+gunzip ${subraw}/struct/${subj}_in+orig.BRIK.gz
+echo "converting to nifti: ${subraw}/struct/${subj}_in+orig.BRIK"
+3dAFNItoNIFTI -prefix ${subraw}/struct/${subj}_in.nii ${subraw}/struct/${subj}_in+orig.BRIK 
+gzip ${subraw}/struct/${subj}_in.nii
+chmod 777 ${subraw}/struct/${subj}_in.nii.gz
+sh optiBET.sh -i "${subraw}/struct/${subj}_in.nii.gz" -f
+#else
+#sh optiBET.sh -i "${output_dir}/${subj}struct_restore.nii.gz" -f
+#endif
 echo "done ${subj}"
 end
-
+endif
 #alt BET -B -f .35 (also -c for center coordinates)
